@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, wakeonlan!</string>
     <string name="app_name">wakeonlan</string>
+    <string name="edit_name">hostedit</string>
+	<string name="menu_wake">Wake</string>
+	<string name="menu_add">Add</string>
+	<string name="menu_edit">Edit</string>
+	<string name="menu_delete">Delete</string>
+	<string name="no_hosts">Push the "Menu" button to add a host.</string>
+	<string name="hostname">Hostname</string>
+	<string name="ip">IP Address</string>
+	<string name="mac">MAC Address</string>
+	<string name="confirm">Confirm</string>
 </resources>
