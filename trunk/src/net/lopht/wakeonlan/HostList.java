@@ -18,8 +18,9 @@ public class HostList extends ListActivity {
 	private static final int ACTIVITY_EDIT = 1;
 	
 	private static final int MENU_WAKE = Menu.FIRST;
-	private static final int MENU_EDIT = Menu.FIRST + 1;
-	private static final int MENU_DELETE = Menu.FIRST + 2;
+	private static final int MENU_ADD = Menu.FIRST + 1;
+	private static final int MENU_EDIT = Menu.FIRST + 2;
+	private static final int MENU_DELETE = Menu.FIRST + 3;
 	
 	private HostDbAdapter mDbAdapter;
 	
@@ -64,14 +65,14 @@ public class HostList extends ListActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0,MENU_EDIT,0,R.string.menu_add);
+		menu.add(0,MENU_ADD,0,R.string.menu_add);
 		return true;
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch(item.getItemId()) {
-		case MENU_EDIT:
+		case MENU_ADD:
 			Intent i = new Intent(this,HostEdit.class);
 			startActivityForResult(i,ACTIVITY_CREATE);
 			return true;
