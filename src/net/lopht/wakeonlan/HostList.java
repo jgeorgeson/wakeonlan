@@ -1,5 +1,9 @@
 package net.lopht.wakeonlan;
 
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.database.Cursor;
@@ -48,6 +52,7 @@ public class HostList extends ListActivity {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch(item.getItemId()) {
 		case MENU_WAKE:
+			wakeHost(info.id);
 			return true;
 		case MENU_EDIT:
 	        Intent i = new Intent(this, HostEdit.class);
@@ -83,6 +88,7 @@ public class HostList extends ListActivity {
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		super.onListItemClick(l, v, position, id);
+		wakeHost(id);
 	}
 
 	@Override
@@ -103,7 +109,70 @@ public class HostList extends ListActivity {
         int[] to = new int[]{R.id.host_row};
         
         // Now create a simple cursor adapter and set it to display
-        SimpleCursorAdapter hosts = 
-        	    new SimpleCursorAdapter(this, R.layout.host_row, hostsCursor, from, to);
-        setListAdapter(hosts);    }
+        SimpleCursorAdapter hosts = new SimpleCursorAdapter(this, R.layout.host_row, hostsCursor, from, to);
+        setListAdapter(hosts);
+ 	}
+	
+	private void wakeHost(long rowID) {
+		// Retrieve the host info
+        Cursor hostCursor = mDbAdapter.fetchHost(rowID);
+        startManagingCursor(hostCursor);
+		String ipStr = hostCursor.getString(
+				hostCursor.getColumnIndexOrThrow(HostDbAdapter.KEY_IP));
+		String macStr = hostCursor.getString(
+				hostCursor.getColumnIndexOrThrow(HostDbAdapter.KEY_MAC));
+		
+		// Convert to two's complement byte array's
+		// Convert the MAC address into a byte array
+		byte[] mac = toByteArray(macStr,":",16);
+
+		// convert the IP address into a byte array
+		byte[] ip = toByteArray(ipStr,"[.]",10);
+
+		// Construct the magic packet
+		byte[] magicPacket = new byte[102];
+		magicPacket[0] = -1;
+		magicPacket[1] = -1;
+		magicPacket[2] = -1;
+		magicPacket[3] = -1;
+		magicPacket[4] = -1;
+		magicPacket[5] = -1;
+		System.arraycopy(mac, 0, magicPacket, 6, 6);
+		System.arraycopy(mac, 0, magicPacket, 12, 6);		
+		System.arraycopy(mac, 0, magicPacket, 18, 6);		
+		System.arraycopy(mac, 0, magicPacket, 24, 6);		
+		System.arraycopy(mac, 0, magicPacket, 30, 6);		
+		System.arraycopy(mac, 0, magicPacket, 36, 6);		
+		System.arraycopy(mac, 0, magicPacket, 42, 6);		
+		System.arraycopy(mac, 0, magicPacket, 48, 6);		
+		System.arraycopy(mac, 0, magicPacket, 54, 6);		
+		System.arraycopy(mac, 0, magicPacket, 60, 6);		
+		System.arraycopy(mac, 0, magicPacket, 66, 6);		
+		System.arraycopy(mac, 0, magicPacket, 72, 6);		
+		System.arraycopy(mac, 0, magicPacket, 78, 6);		
+		System.arraycopy(mac, 0, magicPacket, 84, 6);		
+		System.arraycopy(mac, 0, magicPacket, 90, 6);		
+		System.arraycopy(mac, 0, magicPacket, 96, 6);		
+
+		// Send the packet
+		try {
+			InetAddress network = InetAddress.getByAddress(ip);
+			DatagramPacket packet = new DatagramPacket(magicPacket, magicPacket.length, network, 0);
+			DatagramSocket socket = new DatagramSocket();
+			socket.send(packet);			
+		}
+		catch (Exception e) {
+			System.err.println(e);
+		}
+	}
+
+	private static byte[] toByteArray (String source, String exp, int radix){
+		String[] str = source.split(exp);
+		byte[] bytes = new byte[str.length];
+		for (int i = 0; i < str.length; i++) {
+			int x = Integer.parseInt(str[i],radix);
+			bytes[i] = x > 127 ? (byte) (x - 256) : (byte) x;
+		}
+		return bytes;
+	}
 }
