@@ -121,6 +121,8 @@ public class HostList extends ListActivity {
 				hostCursor.getColumnIndexOrThrow(HostDbAdapter.KEY_IP));
 		String macStr = hostCursor.getString(
 				hostCursor.getColumnIndexOrThrow(HostDbAdapter.KEY_MAC));
+		int port = Integer.parseInt(hostCursor.getString(
+				hostCursor.getColumnIndexOrThrow(HostDbAdapter.KEY_PORT)));
 		
 		// Convert to two's complement byte array's
 		// Convert the MAC address into a byte array
@@ -157,7 +159,7 @@ public class HostList extends ListActivity {
 		// Send the packet
 		try {
 			InetAddress network = InetAddress.getByAddress(ip);
-			DatagramPacket packet = new DatagramPacket(magicPacket, magicPacket.length, network, 0);
+			DatagramPacket packet = new DatagramPacket(magicPacket, magicPacket.length, network, port);
 			DatagramSocket socket = new DatagramSocket();
 			socket.send(packet);			
 		}

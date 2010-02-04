@@ -29,20 +29,16 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
- * Simple notes database access helper class. Defines the basic CRUD operations
- * for the notepad example, and gives the ability to list all notes as well as
- * retrieve or modify a specific note.
- * 
- * This has been improved from the first version of this tutorial through the
- * addition of better error handling and also using returning a Cursor instead
- * of using a collection of inner classes (which is less scalable and not
- * recommended).
+ * Simple hosts database access helper class. Defines the basic CRUD operations
+ * and gives the ability to list all notes as well as retrieve or modify a 
+ * specific host.
  */
 public class HostDbAdapter {
 
     public static final String KEY_HOSTNAME = "hostname";
-    public static final String KEY_IP = "ip";
     public static final String KEY_MAC = "mac";
+    public static final String KEY_IP = "ip";
+    public static final String KEY_PORT = "port";
     public static final String KEY_ROWID = "_id";
 
     private static final String TAG = "HostDbAdapter";
@@ -53,11 +49,11 @@ public class HostDbAdapter {
      * Database creation sql statement
      */
     private static final String DATABASE_CREATE =
-            "create table notes (_id integer primary key autoincrement, "
-                    + "hostname text not null, ip text not null, mac text not null);";
+            "create table hosts (_id integer primary key autoincrement, "
+                    + "hostname text not null, mac text not null, ip text not null, port text not null);";
 
-    private static final String DATABASE_NAME = "data";
-    private static final String DATABASE_TABLE = "notes";
+    private static final String DATABASE_NAME = "wakeonlan_data";
+    private static final String DATABASE_TABLE = "hosts";
     private static final int DATABASE_VERSION = 1;
 
     private final Context mCtx;
@@ -70,7 +66,6 @@ public class HostDbAdapter {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-
             db.execSQL(DATABASE_CREATE);
         }
 
@@ -78,7 +73,7 @@ public class HostDbAdapter {
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
             Log.w(TAG, "Upgrading database from version " + oldVersion + " to "
                     + newVersion + ", which will destroy all old data");
-            db.execSQL("DROP TABLE IF EXISTS notes");
+            db.execSQL("DROP TABLE IF EXISTS hosts");
             onCreate(db);
         }
     }
@@ -94,7 +89,7 @@ public class HostDbAdapter {
     }
 
     /**
-     * Open the notes database. If it cannot be opened, try to create a new
+     * Open the hosts database. If it cannot be opened, try to create a new
      * instance of the database. If it cannot be created, throw an exception to
      * signal the failure
      * 
@@ -119,16 +114,17 @@ public class HostDbAdapter {
      * a -1 to indicate failure.
      * 
      * @param hostname the hostname of the host
-     * @param ip the IP of the host
      * @param mac the MAC address of the host
+     * @param ip the IP address of the host
+     * @param port the port to send the packet to
      * @return rowId or -1 if failed
      */
-    public long createHost(String hostname, String ip, String mac) {
+    public long createHost(String hostname, String mac, String ip, String port) {
         ContentValues initialValues = new ContentValues();
         initialValues.put(KEY_HOSTNAME, hostname);
-        initialValues.put(KEY_IP, ip);
         initialValues.put(KEY_MAC, mac);
-
+        initialValues.put(KEY_IP, ip);
+        initialValues.put(KEY_PORT, port);
 
         return mDb.insert(DATABASE_TABLE, null, initialValues);
     }
@@ -152,7 +148,7 @@ public class HostDbAdapter {
     public Cursor fetchAllHosts() {
 
         return mDb.query(DATABASE_TABLE, new String[] {KEY_ROWID, KEY_HOSTNAME,
-                KEY_IP, KEY_MAC}, null, null, null, null, null);
+                KEY_MAC, KEY_IP, KEY_PORT}, null, null, null, null, null);
     }
 
     /**
@@ -167,7 +163,7 @@ public class HostDbAdapter {
         Cursor mCursor =
 
                 mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
-                        KEY_HOSTNAME, KEY_IP, KEY_MAC}, KEY_ROWID + "=" + rowId, null,
+                        KEY_HOSTNAME, KEY_MAC, KEY_IP, KEY_PORT}, KEY_ROWID + "=" + rowId, null,
                         null, null, null, null);
         if (mCursor != null) {
             mCursor.moveToFirst();
@@ -183,15 +179,17 @@ public class HostDbAdapter {
      * 
      * @param rowId id of host to update
      * @param hostname value to set host hostname to
-     * @param ip value to set host IP to
      * @param mac value to set host MAC to
+     * @param ip value to set host IP to
+     * @param port value to set host port to
      * @return true if the host was successfully updated, false otherwise
      */
-    public boolean updateHost(long rowId, String hostname, String ip, String mac) {
+    public boolean updateHost(long rowId, String hostname, String ip, String mac, String port) {
         ContentValues args = new ContentValues();
         args.put(KEY_HOSTNAME, hostname);
-        args.put(KEY_IP, ip);
         args.put(KEY_MAC, mac);
+        args.put(KEY_IP, ip);
+        args.put(KEY_PORT, port);
 
         return mDb.update(DATABASE_TABLE, args, KEY_ROWID + "=" + rowId, null) > 0;
     }

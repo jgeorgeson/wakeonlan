@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 public class HostEdit extends Activity {
-	private EditText mHostname, mIP, mMAC;
+	private EditText mHostname, mIP, mMAC, mPort;
 	private Long mRowID;
 	private HostDbAdapter mDbAdapter;
 	
@@ -23,8 +23,9 @@ public class HostEdit extends Activity {
 		
 		/* Get the form fields */
 		mHostname = (EditText) findViewById(R.id.hostname);
-		mIP = (EditText) findViewById(R.id.ip);
 		mMAC = (EditText) findViewById(R.id.mac);
+		mIP = (EditText) findViewById(R.id.ip);
+		mPort = (EditText) findViewById(R.id.port);
 		
 		/* Saved state? */
 		mRowID = savedInstanceState != null ?
@@ -56,8 +57,9 @@ public class HostEdit extends Activity {
 			Cursor host = mDbAdapter.fetchHost(mRowID);
 			startManagingCursor(host);
 			mHostname.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_HOSTNAME)));
-			mIP.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_IP)));
 			mMAC.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_MAC)));
+			mIP.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_IP)));
+			mPort.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_PORT)));
 		}
 	}
 
@@ -81,16 +83,17 @@ public class HostEdit extends Activity {
     
     private void saveState() {
         String hostname = mHostname.getText().toString();
-        String ip = mIP.getText().toString();
         String mac = mMAC.getText().toString();
+        String ip = mIP.getText().toString();
+        String port = mPort.getText().toString();
 
         if (mRowID == null) {
-            long id = mDbAdapter.createHost(hostname, ip, mac);
+            long id = mDbAdapter.createHost(hostname, ip, mac, port);
             if (id > 0) {
                 mRowID = id;
             }
         } else {
-            mDbAdapter.updateHost(mRowID, hostname, ip, mac);
+            mDbAdapter.updateHost(mRowID, hostname, ip, mac, port);
         }
     }
 }
