@@ -103,10 +103,20 @@ public class HostList extends ListActivity {
         startManagingCursor(hostsCursor);
         
         // Create an array to specify the fields we want to display in the list (only hostname)
-        String[] from = new String[]{HostDbAdapter.KEY_HOSTNAME};
+        String[] from = new String[]{
+        	HostDbAdapter.KEY_HOSTNAME,
+        	HostDbAdapter.KEY_MAC,
+        	HostDbAdapter.KEY_IP,
+        	HostDbAdapter.KEY_PORT
+        };
         
         // and an array of the fields we want to bind those fields to
-        int[] to = new int[]{R.id.host_row};
+        int[] to = new int[]{
+        	R.id.host_row_name,
+        	R.id.host_row_mac,
+        	R.id.host_row_ip,
+        	R.id.host_row_port
+        };
         
         // Now create a simple cursor adapter and set it to display
         SimpleCursorAdapter hosts = new SimpleCursorAdapter(this, R.layout.host_row, hostsCursor, from, to);

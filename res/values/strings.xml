@@ -12,4 +12,5 @@
 	<string name="mac">MAC Address</string>
 	<string name="port">Port</string>
 	<string name="confirm">Confirm</string>
+<string name="cancel">Cancel</string>
 </resources>

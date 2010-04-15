@@ -48,9 +48,12 @@ public class HostDbAdapter {
     /**
      * Database creation sql statement
      */
-    private static final String DATABASE_CREATE =
-            "create table hosts (_id integer primary key autoincrement, "
-                    + "hostname text not null, mac text not null, ip text not null, port text not null);";
+    private static final String DATABASE_CREATE = "create table hosts ("
+    	+ KEY_ROWID + " integer primary key autoincrement, "
+    	+ KEY_HOSTNAME + " text not null, "
+    	+ KEY_MAC + "text not null, "
+		+ KEY_IP + " text not null, "
+		+ KEY_PORT + " text not null);";
 
     private static final String DATABASE_NAME = "wakeonlan_data";
     private static final String DATABASE_TABLE = "hosts";
@@ -160,16 +163,16 @@ public class HostDbAdapter {
      */
     public Cursor fetchHost(long rowId) throws SQLException {
 
-        Cursor mCursor =
+    	Cursor mCursor = mDb.query(true, DATABASE_TABLE,
+			new String[] {KEY_ROWID, KEY_HOSTNAME, KEY_MAC, KEY_IP, KEY_PORT},
+			KEY_ROWID + "=" + rowId,
+			null, null, null, null, null);
+    	
+    	if (mCursor != null) {
+    		mCursor.moveToFirst();
+    	}
 
-                mDb.query(true, DATABASE_TABLE, new String[] {KEY_ROWID,
-                        KEY_HOSTNAME, KEY_MAC, KEY_IP, KEY_PORT}, KEY_ROWID + "=" + rowId, null,
-                        null, null, null, null);
-        if (mCursor != null) {
-            mCursor.moveToFirst();
-        }
-        return mCursor;
-
+    	return mCursor;
     }
 
     /**
@@ -184,7 +187,7 @@ public class HostDbAdapter {
      * @param port value to set host port to
      * @return true if the host was successfully updated, false otherwise
      */
-    public boolean updateHost(long rowId, String hostname, String ip, String mac, String port) {
+    public boolean updateHost(long rowId, String hostname, String mac, String ip, String port) {
         ContentValues args = new ContentValues();
         args.put(KEY_HOSTNAME, hostname);
         args.put(KEY_MAC, mac);
