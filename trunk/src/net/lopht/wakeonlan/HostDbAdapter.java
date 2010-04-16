@@ -51,11 +51,11 @@ public class HostDbAdapter {
     private static final String DATABASE_CREATE = "create table hosts ("
     	+ KEY_ROWID + " integer primary key autoincrement, "
     	+ KEY_HOSTNAME + " text not null, "
-    	+ KEY_MAC + "text not null, "
+    	+ KEY_MAC + " text not null, "
 		+ KEY_IP + " text not null, "
 		+ KEY_PORT + " text not null);";
 
-    private static final String DATABASE_NAME = "wakeonlan_data";
+    private static final String DATABASE_NAME = "wakeonlan_data.db";
     private static final String DATABASE_TABLE = "hosts";
     private static final int DATABASE_VERSION = 1;
 
