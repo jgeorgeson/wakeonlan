@@ -92,9 +92,11 @@ public class HostEdit extends Activity {
         String port = mPort.getText().toString();
 
         if (mRowID == null) {
-            long id = mDbAdapter.createHost(hostname, mac, ip, port);
-            if (id > 0) {
-                mRowID = id;
+            if (hostname.length() != 0 && mac.length() != 0 && ip.length() != 0 && port.length() != 0) {
+	            long id = mDbAdapter.createHost(hostname, mac, ip, port);
+	            if (id > 0) {
+	                mRowID = id;
+	            }
             }
         } else {
             mDbAdapter.updateHost(mRowID, hostname, mac, ip, port);
