@@ -17,31 +17,28 @@ public class HostEdit extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.host_edit);
 		
-		/* Get the database */
+		// Get the database
 		mDbAdapter = new HostDbAdapter(this);
 		mDbAdapter.open();
 		
-		/* Get the form fields */
+		// Get the form fields
 		mHostname = (EditText) findViewById(R.id.hostname);
 		mMAC = (EditText) findViewById(R.id.mac);
 		mIP = (EditText) findViewById(R.id.ip);
 		mPort = (EditText) findViewById(R.id.port);
 		
-		/* Saved state? */
+		// Saved state?
 		mRowID = savedInstanceState != null ?
 				savedInstanceState.getLong(HostDbAdapter.KEY_ROWID):
 				null;
 
-		/* No saved state */
+		// No saved state
         if (mRowID == null) {
 			Bundle extras = getIntent().getExtras();            
 			mRowID = extras != null ? extras.getLong(HostDbAdapter.KEY_ROWID) : null;
 		}
         
-        /* Populate the fields with existing data, if any */
-        updateFields();
-		        
-		/* Get the button and setup a listener for it */
+		// Get the button and setup a listener for it
 		Button confirm = (Button) findViewById(R.id.confirm);
 		confirm.setOnClickListener(new View.OnClickListener() {
 			
@@ -50,17 +47,6 @@ public class HostEdit extends Activity {
                 finish();				
 			}
 		});
-	}
-	
-	private void updateFields () {
-		if (mRowID != null) {
-			Cursor host = mDbAdapter.fetchHost(mRowID);
-			startManagingCursor(host);
-			mHostname.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_HOSTNAME)));
-			mMAC.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_MAC)));
-			mIP.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_IP)));
-			mPort.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_PORT)));
-		}
 	}
 
 	@Override
@@ -80,7 +66,25 @@ public class HostEdit extends Activity {
         super.onResume();
         updateFields();
     }
+	
+    /**
+     * Retrieve the values from the database to populate the text fields
+     */
+	private void updateFields () {
+		if (mRowID != null) {
+			Cursor host = mDbAdapter.fetchHost(mRowID);
+			startManagingCursor(host);
+			mHostname.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_HOSTNAME)));
+			mMAC.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_MAC)));
+			mIP.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_IP)));
+			mPort.setText(host.getString(host.getColumnIndexOrThrow(HostDbAdapter.KEY_PORT)));
+		}
+	}
     
+	/**
+	 * Get the input from the text fields and write them to the database, either updating
+	 * and existing row or creating a new one as needed.
+	 */
     private void saveState() {
         String hostname = mHostname.getText().toString();
         String mac = mMAC.getText().toString();

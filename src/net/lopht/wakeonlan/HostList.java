@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -20,11 +21,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 public class HostList extends ListActivity {
 	private static final int ACTIVITY_CREATE = 0;
 	private static final int ACTIVITY_EDIT = 1;
-	
-	private static final int MENU_WAKE = Menu.FIRST;
-	private static final int MENU_ADD = Menu.FIRST + 1;
-	private static final int MENU_EDIT = Menu.FIRST + 2;
-	private static final int MENU_DELETE = Menu.FIRST + 3;
 	
 	private HostDbAdapter mDbAdapter;
 	
@@ -42,24 +38,23 @@ public class HostList extends ListActivity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		menu.add(0,MENU_WAKE,0,R.string.menu_wake);
-		menu.add(0,MENU_EDIT,0,R.string.menu_edit);
-		menu.add(0,MENU_DELETE,0,R.string.menu_delete);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.context_menu, menu);
 	}
 
     @Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch(item.getItemId()) {
-		case MENU_WAKE:
+		case R.id.context_menu_wake:
 			wakeHost(info.id);
 			return true;
-		case MENU_EDIT:
+		case R.id.context_menu_edit:
 	        Intent i = new Intent(this, HostEdit.class);
 	        i.putExtra(HostDbAdapter.KEY_ROWID, info.id);
 	        startActivityForResult(i, ACTIVITY_EDIT);
 	        return true;
-		case MENU_DELETE:
+		case R.id.context_menu_delete:
 			mDbAdapter.deleteHost(info.id);
 			updateList();
 			return true;
@@ -70,14 +65,15 @@ public class HostList extends ListActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		super.onCreateOptionsMenu(menu);
-		menu.add(0,MENU_ADD,0,R.string.menu_add);
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.options_menu, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch(item.getItemId()) {
-		case MENU_ADD:
+		case R.id.options_menu_add:
 			Intent i = new Intent(this,HostEdit.class);
 			startActivityForResult(i,ACTIVITY_CREATE);
 			return true;
@@ -97,6 +93,9 @@ public class HostList extends ListActivity {
 		updateList();
 	}
 
+	/**
+	 * Set the the activity as a ListAdapter using all four user editable fields from the database.
+	 */
 	private void updateList () {
         // Get all of the rows from the database and create the item list
         Cursor hostsCursor = mDbAdapter.fetchAllHosts();
@@ -123,6 +122,12 @@ public class HostList extends ListActivity {
         setListAdapter(hosts);
  	}
 	
+	/**
+	 * Construct a magic packet using the IP, port, and MAC stored in the database, and send the packet to
+	 * wake the host.
+	 * 
+	 * @param rowID the key value to retrieve the row from the database
+	 */
 	private void wakeHost(long rowID) {
 		// Retrieve the host info
         Cursor hostCursor = mDbAdapter.fetchHost(rowID);
@@ -178,6 +183,14 @@ public class HostList extends ListActivity {
 		}
 	}
 
+	/**
+	 * Split a delimited string into an array of bytes.
+	 * 
+	 * @param source The String object to convert
+	 * @param exp The expression to split the source string with
+	 * @param radix The radix to use to parse each String[] element returned by splitting the source string
+	 * @return A byte[] representation of the source string
+	 */
 	private static byte[] toByteArray (String source, String exp, int radix){
 		String[] str = source.split(exp);
 		byte[] bytes = new byte[str.length];
